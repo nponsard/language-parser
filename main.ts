@@ -1,3 +1,6 @@
+import { HandleNonTerminal } from "./handlers.ts";
+import { outputElement, ruleT, rulesT, stackOutput } from "./types.ts";
+
 export function lexing(input: string): string[] {
   return input.split("\n").flatMap((l) => {
     const words = l.trim().split(" ");
@@ -26,17 +29,6 @@ export async function loadGrammar(file = "./grammar.json"): Promise<Grammar> {
   return JSON.parse(grammarFile);
 }
 
-type outputElement = {
-  type: string;
-  value: string;
-};
-
-type stackOutput = outputElement[] | null;
-
-type rulesT = (string | null)[][];
-
-type ruleT = (string | null)[];
-
 // application d'une règle
 function applyRule(
   input: string[],
@@ -44,7 +36,7 @@ function applyRule(
   cursor: number,
   grammar: Grammar
 ): { cursor: number; output: stackOutput } {
-  const output: stackOutput = [];
+  const elements: outputElement[] = [];
   for (const matcher of rule) {
     // si l'élément de la règle est null, on passe
     if (matcher === null) {
@@ -65,7 +57,7 @@ function applyRule(
       if (!regexp.test(word)) {
         return { cursor: -1, output: null };
       }
-      output.push({ type: matcher, value: word });
+      elements.push({ type: matcher, value: word });
     }
 
     // non terminal, on appelle la règle associée
@@ -84,9 +76,15 @@ function applyRule(
         return { cursor: -1, output: null };
       }
       cursor = returned.cursor;
+
       // on ajoute la sortie de la règle à la sortie
       if (returned.output !== null) {
-        output.push(...returned.output);
+        const ret = HandleNonTerminal(returned.output, matcher);
+        if (ret.length === 0) {
+          elements.push(...returned.output);
+        } else {
+          elements.push(...ret);
+        }
       }
     } else {
       console.error("invalid token type");
@@ -94,7 +92,7 @@ function applyRule(
     }
   }
 
-  return { cursor, output };
+  return { cursor, output: elements };
 }
 
 // on essaie d'appliquer toutes les règles
@@ -130,7 +128,6 @@ export function parseTokens(
 ): { valid: boolean; output: stackOutput } {
   const result = parseStep(intput, [["S"]], 0, grammar);
   console.log(result, intput.length);
-  console.log(result.output);
   const valid = result.cursor >= intput.length;
   return { valid, output: result.output };
 }
@@ -162,5 +159,5 @@ if (import.meta.main) {
     console.error("invalid input file");
     Deno.exit(1);
   }
-  console.log(result.output);
+  console.log(JSON.stringify(result.output, null, 2));
 }
