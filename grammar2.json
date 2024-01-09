@@ -1,0 +1,118 @@
+{
+  "tokens": {
+    "linebreak": {
+      "pattern": "\n"
+    },
+    "contact": {
+      "pattern": "contact"
+    },
+    "rate": {
+      "pattern": "rate"
+    },
+    "delay": {
+      "pattern": "delay"
+    },
+    "num": {
+      "pattern": "\\d+"
+    },
+    "id": {
+      "pattern": "\\w+"
+    },
+    "zz": {
+      "pattern": "zz"
+    }
+  },
+  "rules": {
+    "D": [
+      [
+        "delay",
+        "num",
+        "num",
+        "num",
+        "linebreak",
+        "R"
+      ],
+      [
+        "delay",
+        "num",
+        "num",
+        "num",
+        "linebreak",
+        "D"
+      ],
+      [
+        "delay",
+        "num",
+        "num",
+        "num",
+        "linebreak",
+        "C"
+      ]
+    ],
+    "R": [
+      [
+        "rate",
+        "num",
+        "num",
+        "num",
+        "linebreak",
+        "R"
+      ],
+      [
+        "rate",
+        "num",
+        "num",
+        "num",
+        "linebreak",
+        "D"
+      ],
+      [
+        "rate",
+        "num",
+        "num",
+        "num",
+        "linebreak",
+        "C"
+      ]
+    ],
+    "C": [
+      [
+        null
+      ],
+      [
+        "contact",
+        "Z",
+        "id",
+        "id",
+        "num",
+        "num",
+        "linebreak",
+        "D",
+        "zz",
+        "linebreak"
+      ],
+      [
+        "contact",
+        "Z",
+        "id",
+        "id",
+        "num",
+        "num",
+        "linebreak",
+        "R",
+        "zz",
+        "linebreak"
+      ]
+    ],
+    "S": [
+      [
+        "C"
+      ]
+    ],
+    "Z": [
+      [
+        null
+      ]
+    ]
+  }
+}
