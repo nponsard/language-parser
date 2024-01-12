@@ -4,13 +4,15 @@ export function HandleNonTerminal(
   elements: outputElement[],
   token: string
 ): outputElement[] {
-  const out = [] as outputElement[];
+  const out = elements;
   if (elements.length === 0) {
     return out;
   }
 
   switch (token) {
     case "C": {
+      console.log(out);
+      out.shift();
       const obj = {
         type: "contact",
         value: {
@@ -22,47 +24,68 @@ export function HandleNonTerminal(
           delays: [] as Delay[],
         },
       } as Contact;
-      obj.value.startNode = elements[1].value as string;
-      obj.value.endNode = elements[2].value as string;
-      obj.value.startTime = elements[3].value as string;
-      obj.value.endTime = elements[4].value as string;
-      for (const e of elements) {
+      obj.value.startNode = out.shift()?.value as string;
+      obj.value.endNode = out.shift()?.value as string;
+      obj.value.startTime = out.shift()?.value as string;
+      obj.value.endTime = out.shift()?.value as string;
+
+      // remove linebreak
+      out.shift();
+      out.push(obj);
+
+      console.log(out);
+
+      while (
+        out.length > 0 &&
+        (out[0].type === "rate" || out[0].type === "delay")
+      ) {
+        const e = out.shift() as Rate | Delay;
+
         if (e.type === "rate") {
-          obj.value.rates.push(e as Rate);
+          obj.value.rates.push(e);
         }
         if (e.type === "delay") {
-          obj.value.delays.push(e as Delay);
+          obj.value.delays.push(e);
         }
       }
-      out.push(obj);
       break;
     }
 
     case "R": {
+      out.shift();
       const obj = {
         type: "rate",
         value: [] as string[],
       } as Rate;
 
-      for (const e of elements) {
-        if (e.type === "num") {
+      for (let i = 0; i < 3; i++) {
+        const e = out.shift();
+
+        if (e != undefined && e.type === "num") {
           obj.value.push(e.value);
         }
       }
+      // remove linebreak
+      out.shift();
       out.push(obj);
       break;
     }
     case "D": {
+      out.shift();
       const obj = {
         type: "delay",
         value: [] as string[],
       } as Delay;
 
-      for (const e of elements) {
-        if (e.type === "num") {
+      for (let i = 0; i < 3; i++) {
+        const e = out.shift();
+
+        if (e != undefined && e.type === "num") {
           obj.value.push(e.value);
         }
       }
+      // remove linebreak
+      out.shift();
       out.push(obj);
       break;
     }

@@ -159,5 +159,5 @@ if (import.meta.main) {
     console.error("invalid input file");
     Deno.exit(1);
   }
-  console.log(JSON.stringify(result.output, null, 2));
+  console.log(JSON.stringify(result.output, null, 1));
 }
