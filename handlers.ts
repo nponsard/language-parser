@@ -3,10 +3,10 @@ import { Contact, Delay, Rate, outputElement, TokenElement } from "./types.ts";
 export function HandleNonTerminal(
   elements: outputElement[],
   token: string
-): outputElement[] {
+): { elements: outputElement[]; error?: string } {
   const out = elements;
   if (elements.length === 0) {
-    return out;
+    return { elements: out };
   }
 
   switch (token) {
@@ -51,10 +51,43 @@ export function HandleNonTerminal(
         } else if (e.type === "delay") {
           obj.value.delays.push(e);
         } else {
+          // si on tombe sur un autre contact, on le remet dans la pile
           temp.unshift(e);
         }
       }
       out.push(...temp);
+
+      // Vérification que les délais couvrent l'intervalle
+
+      const sorted = obj.value.delays.sort((a, b) => {
+        return a.start - b.start;
+      });
+
+      let index = 0;
+
+      if (sorted.length === 0) {
+        // erreur pas de délais
+        return { elements: [], error: "Pas de délais" };
+      }
+
+      if (sorted[0].start !== obj.value.startTime) {
+        // erreur délai manquant
+        return { elements: [], error: "Délai manquant" };
+      }
+      while (index < sorted.length - 1) {
+        if (sorted[index].end !== sorted[index + 1].start) {
+          // erreur délai manquant
+          return { elements: [], error: "Délai manquant" };
+        }
+
+        index++;
+      }
+
+      if (sorted[index].end !== obj.value.endTime) {
+        // erreur délai manquant
+        return { elements: [], error: "Délai manquant" };
+      }
+
       break;
     }
 
@@ -102,5 +135,5 @@ export function HandleNonTerminal(
       break;
     }
   }
-  return out;
+  return { elements: out };
 }

@@ -81,11 +81,17 @@ function applyRule(
 
       // on ajoute la sortie de la règle à la sortie
       if (returned.output !== null) {
+        // on applique le handler sur la sortie de la règle`
         const ret = HandleNonTerminal(returned.output, matcher);
-        if (ret.length === 0) {
+
+        if (ret.error) {
+          console.error(ret.error);
+          return { cursor: -1, output: null };
+        }
+        if (ret.elements.length === 0) {
           elements.push(...returned.output);
         } else {
-          elements.push(...ret);
+          elements.push(...ret.elements);
         }
       }
     } else {
@@ -142,7 +148,6 @@ export function fullParse(
 ): { valid: boolean; output: stackOutput } {
   return parseTokens(lexing(input), grammar);
 }
-
 
 // si ce fichier est appelé directement, on lance le parsing
 if (import.meta.main) {
