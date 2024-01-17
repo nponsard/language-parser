@@ -1,4 +1,4 @@
-import { Contact, Delay, Rate, outputElement } from "./types.ts";
+import { Contact, Delay, Rate, outputElement, TokenElement } from "./types.ts";
 // Tested with the grammars in grammar3.json and grammar4.json
 export function HandleNonTerminal(
   elements: outputElement[],
@@ -19,16 +19,19 @@ export function HandleNonTerminal(
         value: {
           startNode: "",
           endNode: "",
-          startTime: "",
-          endTime: "",
+          startTime: 0,
+          endTime: 0,
           rates: [] as Rate[],
           delays: [] as Delay[],
         },
       } as Contact;
-      obj.value.startNode = out.shift()?.value as string;
-      obj.value.endNode = out.shift()?.value as string;
-      obj.value.startTime = out.shift()?.value as string;
-      obj.value.endTime = out.shift()?.value as string;
+
+      // 2 string
+      obj.value.startNode = (out.shift() as TokenElement).value;
+      obj.value.endNode = (out.shift() as TokenElement).value;
+      // 2 num
+      obj.value.startTime = parseInt((out.shift() as TokenElement).value);
+      obj.value.endTime = parseInt((out.shift() as TokenElement).value);
 
       // remove linebreak
       out.shift();
@@ -60,7 +63,7 @@ export function HandleNonTerminal(
       out.shift();
       const obj = {
         type: "rate",
-        value: [] as string[],
+        value: [] as number[],
       } as Rate;
 
       // Lectures des 3 valeurs
@@ -68,7 +71,7 @@ export function HandleNonTerminal(
         const e = out.shift();
 
         if (e != undefined && e.type === "num") {
-          obj.value.push(e.value);
+          obj.value.push(parseInt(e.value));
         }
       }
       // remove linebreak
@@ -82,18 +85,17 @@ export function HandleNonTerminal(
       out.shift();
       const obj = {
         type: "delay",
-        value: [] as string[],
+        delay: 0,
+        start: 0,
+        end: 0,
       } as Delay;
 
-      // lecture des 3 valeurs
+      // Lecture des 3 valeurs, on sait déjà que c'est 3 num
 
-      for (let i = 0; i < 3; i++) {
-        const e = out.shift();
+      obj.delay = parseInt((out.shift() as TokenElement).value);
+      obj.start = parseInt((out.shift() as TokenElement).value);
+      obj.end = parseInt((out.shift() as TokenElement).value);
 
-        if (e != undefined && e.type === "num") {
-          obj.value.push(e.value);
-        }
-      }
       // remove linebreak
       out.shift();
       out.push(obj);
