@@ -1,0 +1,9 @@
+S -> C S | C
+C -> contact <id> <id> <num> <num> \n E
+E -> R E | D E | None
+R -> rate T \n
+D -> delay <num> <num> <num> \n
+T -> F | G 
+F -> <num> F | <num> //echantillonage
+G -> N x <num> | N x <num> + G
+N -> - <num> | <num> 
