@@ -1,5 +1,5 @@
 import { Contact, Delay, Rate, outputElement } from "./types.ts";
-// these handlers work for the grammar in grammar3.json
+// Tested with the grammars in grammar3.json and grammar4.json
 export function HandleNonTerminal(
   elements: outputElement[],
   token: string
@@ -10,6 +10,7 @@ export function HandleNonTerminal(
   }
 
   switch (token) {
+    // contact
     case "C": {
       console.log(out);
       out.shift();
@@ -35,22 +36,26 @@ export function HandleNonTerminal(
 
       console.log(out);
 
-      while (
-        out.length > 0 &&
-        (out[0].type === "rate" || out[0].type === "delay")
-      ) {
+      // pile temporaire pour stocker les contacts déjà traités
+      const temp = [] as outputElement[];
+
+      // read all rates and delays
+      while (out.length) {
         const e = out.shift() as Rate | Delay;
 
         if (e.type === "rate") {
           obj.value.rates.push(e);
-        }
-        if (e.type === "delay") {
+        } else if (e.type === "delay") {
           obj.value.delays.push(e);
+        } else {
+          temp.unshift(e);
         }
       }
+      out.push(...temp);
       break;
     }
 
+    // rate
     case "R": {
       out.shift();
       const obj = {
@@ -58,6 +63,7 @@ export function HandleNonTerminal(
         value: [] as string[],
       } as Rate;
 
+      // Lectures des 3 valeurs
       for (let i = 0; i < 3; i++) {
         const e = out.shift();
 
@@ -70,12 +76,16 @@ export function HandleNonTerminal(
       out.push(obj);
       break;
     }
+
+    // delay
     case "D": {
       out.shift();
       const obj = {
         type: "delay",
         value: [] as string[],
       } as Delay;
+
+      // lecture des 3 valeurs
 
       for (let i = 0; i < 3; i++) {
         const e = out.shift();

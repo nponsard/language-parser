@@ -1,6 +1,7 @@
 import { HandleNonTerminal } from "./handlers.ts";
 import { outputElement, ruleT, rulesT, stackOutput } from "./types.ts";
 
+// Lexer, chaque ligne est séparée par un \n, si la ligne est vide, on ne la prend pas en compte
 export function lexing(input: string): string[] {
   return input.split("\n").flatMap((l) => {
     const words = l.trim().split(" ");
@@ -12,6 +13,7 @@ export function lexing(input: string): string[] {
   });
 }
 
+// Représentation de la grammaire (récupérée depuis un fichier JSON)
 interface Grammar {
   tokens: {
     [index: string]: {
@@ -29,7 +31,7 @@ export async function loadGrammar(file = "./grammar.json"): Promise<Grammar> {
   return JSON.parse(grammarFile);
 }
 
-// application d'une règle
+// Application d'une règle de la grammaire sur un ensemble de tokens
 function applyRule(
   input: string[],
   rule: ruleT,
@@ -107,6 +109,7 @@ function parseStep(
     output: null,
   };
 
+  // On exécute toutes les règles et on retient celle qui a consommé le plus de tokens
   for (const rule of rules) {
     const inputCopy = input.slice();
     const result = applyRule(inputCopy, rule, cursor, grammar);
@@ -140,6 +143,8 @@ export function fullParse(
   return parseTokens(lexing(input), grammar);
 }
 
+
+// si ce fichier est appelé directement, on lance le parsing
 if (import.meta.main) {
   if (Deno.args.length < 2) {
     console.error(
