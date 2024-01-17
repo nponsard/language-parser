@@ -12,12 +12,14 @@ export type ruleT = (string | null)[];
 
 export interface Rate {
   type: "rate";
-  value: string[];
+  value: number[];
 }
 
 export interface Delay {
   type: "delay";
-  value: string[];
+  delay: number;
+  start: number;
+  end: number;
 }
 
 export interface Contact {
@@ -25,8 +27,8 @@ export interface Contact {
   value: {
     startNode: string;
     endNode: string;
-    startTime: string;
-    endTime: string;
+    startTime: number;
+    endTime: number;
     rates: Rate[];
     delays: Delay[];
   };
