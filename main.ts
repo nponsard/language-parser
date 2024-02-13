@@ -66,7 +66,7 @@ function applyRule(
     else if (Object.keys(grammar.rules).includes(matcher)) {
       console.log("début " + matcher);
       // exécution de la règle associée
-      const returned = parseStep(
+      const step_output = parseStep(
         input,
         grammar.rules[matcher],
         cursor,
@@ -74,22 +74,25 @@ function applyRule(
       );
       console.log("fin " + matcher);
       // si la règle n'a pas fonctionné
-      if (returned.cursor === -1) {
+      if (step_output.cursor === -1) {
         return { cursor: -1, output: null };
       }
-      cursor = returned.cursor;
+      cursor = step_output.cursor;
 
       // on ajoute la sortie de la règle à la sortie
-      if (returned.output !== null) {
+      if (step_output.output !== null) {
         // on applique le handler sur la sortie de la règle`
-        const ret = HandleNonTerminal(returned.output, matcher);
+        const ret = HandleNonTerminal(step_output.output, matcher);
 
+        // Erreur on annule tout
         if (ret.error) {
           console.error(ret.error);
           return { cursor: -1, output: null };
         }
+
+        // si le handler n'a pas retourné d'éléments, on pousse la sortie de la règle
         if (ret.elements.length === 0) {
-          elements.push(...returned.output);
+          elements.push(...step_output.output);
         } else {
           elements.push(...ret.elements);
         }
@@ -135,8 +138,10 @@ export function parseTokens(
   intput: string[],
   grammar: Grammar
 ): { valid: boolean; output: stackOutput } {
+  // On démarre avec la règle de départ
   const result = parseStep(intput, [["S"]], 0, grammar);
   console.log(result, intput.length);
+  // On vérifie que la règle a consommé tous les tokens
   const valid = result.cursor >= intput.length;
   return { valid, output: result.output };
 }
@@ -158,12 +163,15 @@ if (import.meta.main) {
     Deno.exit(1);
   }
 
+  // arguments
   const grammarFilePath = Deno.args[0];
   const inputFilePath = Deno.args[1];
 
+  // on charge la grammaire et le fichier d'entrée
   const grammar = await loadGrammar(grammarFilePath);
   const input = await Deno.readTextFile(inputFilePath);
 
+  // on fait le parsing
   const result = fullParse(input, grammar);
   if (!result.valid) {
     console.error("invalid input file");

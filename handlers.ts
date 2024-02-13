@@ -1,5 +1,6 @@
 import { Contact, Delay, Rate, outputElement, TokenElement } from "./types.ts";
-// Tested with the grammars in grammar3.json and grammar4.json
+
+// Tested with the grammars in grammar3.json and grammar-advanced-rate.json
 export function HandleNonTerminal(
   elements: outputElement[],
   token: string
