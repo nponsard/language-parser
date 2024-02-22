@@ -5,6 +5,7 @@ export function HandleNonTerminal(
   token: string
 ): { elements: outputElement[]; error?: string } {
   const out = elements;
+  // return { elements: out };
   if (elements.length === 0) {
     return { elements: out };
   }

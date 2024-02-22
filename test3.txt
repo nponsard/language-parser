@@ -6,3 +6,4 @@ contact B C 100 140
 delay 1 100 130
 rate 10 100 140
 delay 2 130 140
+contact B C 20 160
